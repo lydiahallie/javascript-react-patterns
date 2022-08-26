@@ -1,0 +1,8 @@
+{
+  "introduction": "1. Bundling, compiling, minifying, tree-shaking",
+  "static-import": "2. Static Import",
+  "dynamic-import": "3. Dynamic Import",
+  "import-on-visibility": "4. Import on Visibility",
+  "route-based-splitting": "5. Route-based Splitting",
+  "browser-hints": "6. Browser Hints"
+}

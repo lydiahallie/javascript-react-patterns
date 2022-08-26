@@ -1,0 +1,83 @@
+import Callout from "../../../components/Callout";
+
+# Static Import
+
+Import code that has been exported by another module
+
+---
+
+### Overview
+
+A statically imported module is a module that's imported with the default `import` keyword.
+
+```js
+import module1 from "./module1";
+import module2 from "./module2";
+import module3 from "./module3";
+```
+
+In this case, `module1`, `module2`, and `module3` are statically imported.
+
+---
+
+When a module is statically imported, a bundler traverses all the modules, and bundles them into one file.
+
+Let's say we have four files:
+
+1. `module1.js`, which exports as single function `module1`
+2. `module2.js`, which statically imports the named export `module1`, and returns a single function `module2`
+3. `module3.js`, which statically imports the named export `module2`, and returns a single function `module3`
+4. `index.js`, which statically imports the named export `module3` and logs this value
+
+When we bundle `index.js`, the bundler traverses the modules, and bundles them all together into one single file.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653361843/FM%20Workshop/performance-patterns/introduction/1_oehaa0.mov"
+  loop
+  muted
+  controls
+/>
+
+---
+
+### Implementation
+
+We can import React components from other files.
+
+```js
+import Header from "./Header";
+import Content from "./Content";
+
+export default function BlogPost({ post }) {
+  return (
+    <div>
+      <Header title={post.title} />
+      <Content body={post.body} />
+      <Footer />
+    </div>
+  );
+}
+```
+
+In this case, `Header` and `Content` are statically imported. The `Header` and `Content` modules get executed as soon as the engine reaches the line on which we import them.
+
+When you open the console, you can see the order in which the modules have been loaded!
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Loading instant dependencies</b>: Statically imported components are
+  instantly available to the user
+</Callout>
+
+<Callout type="green">
+  <b>Optimizations</b>: Statically imported modules can be statically analyzed
+  and tree-shaken.
+</Callout>
+
+<Callout type="warning">
+  <b>Large bundle size</b>: When importing all modules, you might include code
+  that won't be necessary
+</Callout>

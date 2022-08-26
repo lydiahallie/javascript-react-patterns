@@ -1,0 +1,8 @@
+{
+  "conpres": "1. Con/Pres Pattern",
+  "higher-order-component": "2. HOC Pattern",
+  "render-props": "3. Render Props Pattern",
+  "hooks-pattern": "4. Hooks Pattern",
+  "provider-pattern": "5. Provider Pattern",
+  "compound-pattern": "6. Compound Pattern"
+}

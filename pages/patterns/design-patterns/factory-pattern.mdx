@@ -1,0 +1,106 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Factory Pattern
+
+Use a factory function in order to create objects
+
+---
+
+### Overview
+
+With the Factory Pattern, we can use a special function - the factory function - to create many of the same objects.
+
+<video
+  width="100%"
+  height="430"
+  autoPlay
+  muted
+  loop
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1661500378/FM%20Workshop/design-patterns/factory-pattern/factory1_esuucn.mov"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  controls
+/>
+
+---
+
+### Implementation
+
+A factory function can be any function that returns an object.
+
+```js
+const createUser = (firstName, lastName) => ({
+  id: crypto.randomUUID(),
+  createdAt: Date.now(),
+  firstName,
+  lastName,
+  fullName: `${firstName} ${lastName}`,
+});
+
+createUser("John", "Doe");
+createUser("Sarah", "Doe");
+createUser("Lydia", "Hallie");
+```
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>DRY</b>: The factory pattern is useful when we have to create multiple
+  objects that share the same properties, without having to repeat the same code
+  over and over. A factory function can easily return a custom object depending
+  on the current environment, or user-specific configuration.
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+  <b>Not really a pattern</b>: In JavaScript, the factory pattern isn't much more than a function that returns an object without using the new keyword. ES6 arrow functions allow us to create small factory functions that implicitly return an object each time.
+
+However, in many cases it may be more memory efficient to create new instances instead of new objects each time.
+
+```js
+class User {
+  constructor(firstName, lastName, email) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+  }
+
+  async getPosts() {
+    const posts = await fetch(`https://my.cms.com/posts/user/${this.id}`);
+    return posts;
+  }
+}
+
+const user1 = new User({
+  firstName: "John",
+  lastName: "Doe",
+  email: "john@doe.com",
+});
+
+const user2 = new User({
+  firstName: "Jane",
+  lastName: "Doe",
+  email: "jane@doe.com",
+});
+```
+
+The `fullName` method is the same for all the objects that were created. By creating new instances, the `fullName` method is available on the prototype instead of on the objec, which saves memory.
+
+</Callout>
+
+---
+
+### Exercise
+
+#### Challenge
+
+Refactor the following code to use a `createBook` factory function.
+
+<StackBlitz name="node-k12ung" openFile="books.js" />
+
+#### Solution
+
+<StackBlitz name="node-4wzsjr" openFile="index.js" />

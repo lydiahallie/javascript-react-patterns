@@ -1,0 +1,148 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Proxy Pattern
+
+Intercept and control interactions to target objects
+
+---
+
+### Overview
+
+The **Proxy Pattern** uses a **Proxy** intercept and control interactions to target objects.
+
+Let's say that we have a `person` object. We can access properties with either dot or bracket notation,
+
+<video
+  width="100%"
+  height="430"
+  autoPlay
+  muted
+  loop
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653361839/FM%20Workshop/design-patterns/proxy-pattern/proxy1_gdxego.mov"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  controls
+/>
+
+and modify property values in a similar fashion.
+
+<video
+  width="100%"
+  height="430"
+  autoPlay
+  muted
+  loop
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653361839/FM%20Workshop/design-patterns/proxy-pattern/proxy2_px4kua.mov"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  controls
+/>
+
+With the Proxy pattern, we don't want to interact with this object directly. Instead, a Proxy object intercepts the request, and (optionally) forwards this to the target object - the `person` object in this case.
+
+<video
+  width="100%"
+  height="430"
+  autoPlay
+  muted
+  loop
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1661499156/FM%20Workshop/design-patterns/proxy-pattern/proxy3_ztjb5i.mov"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  controls
+/>
+
+---
+
+### Implementation
+
+In JavaScript, we can easily create a new proxy by using the built-in `Proxy` object.
+
+![Proxy](/design-patterns/proxy-pattern/001.png)
+
+The `Proxy` object receives two arguments:
+
+1. The target object
+2. A handler object, which we can use to add functionality to the proxy. This object comes with some built-in functions that we can use, such as `get` and `set`.
+
+The `get` method on the handler object gets invoked when we want to access a property, and the `set` method gets invoked when we want to modify a property.
+
+```js
+const person = {
+  name: "John Doe",
+  age: 42,
+  email: "john@doe.com",
+  country: "Canada",
+};
+
+const personProxy = new Proxy(person, {
+  get: (target, prop) => {
+    console.log(`The value of ${prop} is ${target[prop]}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    console.log(`Changed ${prop} from ${target[prop]} to ${value}`);
+    target[prop] = value;
+    return true;
+  },
+});
+```
+
+---
+
+#### `Reflect`
+
+The built-in `Reflect` object makes it easier to manipulate the target object.
+
+Instead of accessing properties through `obj[prop]` or setting properties through `obj[prop] = value`, we can access or modify properties on the target object through `Reflect.get()` and `Reflect.set()`. The methods receive the same arguments as the methods on the handler object.
+
+<video
+  width="100%"
+  height="430"
+  autoPlay
+  muted
+  loop
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1654010605/FM%20Workshop/design-patterns/proxy-pattern/Screen_Recording_2022-05-31_at_10.22.18_AM_incofj.mov"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  controls
+/>
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Control</b>: Proxies make it easy to add functionality when interacting
+  with a certain object, such as validation, logging, formatting, notifications,
+  debugging.
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+  <b>Long handler execution</b>: Executing handlers on every object interaction
+  could lead to performance issues.
+</Callout>
+
+---
+
+### Exercise
+
+#### Challenge
+
+Add the following validation to the `user` object:
+
+- The `username` property has to be a `string` that only contains of letters, and is at least 3 characters long
+- The `email` property has to be a valid email address.
+- The `age` property has to be a number, and has to be at least `18`
+- When a property is retrieved, change the output to `${new Date()} | The value of ${property}} is ${target[property]}`. For example if we get `user.name`, it needs to log `2022-05-31T15:29:15.303Z | The value of name is John`
+
+<StackBlitz name="node-a9qi4n" openFile="index.js" view="editor" />
+
+#### Solution
+
+<StackBlitz name="node-rsssxs" openFile="README.md" view="editor" />

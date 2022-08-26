@@ -1,0 +1,65 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Route Based Splitting
+
+Dynamically load components based on the current route
+
+---
+
+### Overview
+
+If your application has multiple pages, we can use dynamic imports to only load the resources that are needed for the current route. Instead of the code for all the possible pages in the initial bundle, we can bundle-split based on routes. This approach allows us to defer loading the bundle until the user actually navigates to that page.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653857055/FM%20Workshop/performance-patterns/route-based-splitting/Screen_Recording_2022-05-29_at_3.43.10_PM_ufujaw.mov"
+  loop
+  muted
+  controls
+/>
+
+---
+
+### Implementation
+
+If you're using `react-router` for navigation, you can wrap the `Switch` component in a `React.Suspense`, and import the routes using `React.lazy`. This automatically enables route-based code splitting.
+
+```js
+import React, { lazy, Suspense } from "react";
+import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
+
+const App = lazy(() => import("./App"));
+const About = lazy(() => import("./About"));
+const Contact = lazy(() => import("./Contact"));
+
+ReactDOM.render(
+  <Router>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Switch>
+        <Route exact path="/">
+          <App />
+        </Route>
+        <Route path="/about">
+          <About />
+        </Route>
+        <Route path="/contact">
+          <Contact />
+        </Route>
+      </Switch>
+    </Suspense>
+  </Router>,
+  document.getElementById("root")
+);
+```
+
+<StackBlitz name="node-yykser" openFile="src/index.js" />
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Faster initial load</b>: Dynamically importing the pages reduces the
+  initial bundle size - allowing for a smaller initial load since the client
+  doesn't have to download and execute as much, saving bandwidth.
+</Callout>

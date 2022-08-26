@@ -1,0 +1,163 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Hooks Pattern
+
+Use functions to reuse stateful logic among multiple components throughout the app
+
+---
+
+### Overview
+
+React Hooks are functions special types of functions that you can use in order to:
+
+- Add state to a functional component
+- Reuse stateful logic among multiple components throughout the app.
+- Manage a component's lifecycle
+
+Besides built-in hooks, such as `useState`, `useEffect`, and `useReducer`, we can create custom hooks to easiliy share stateful logic across multiple components within the application.
+
+---
+
+For example, if we wanted to see if a certain component is currently being hovered, we can create and use a `useHover` hook.
+
+<video
+  width="100%"
+  height="430"
+  autoPlay
+  muted
+  loop
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653758774/FM%20Workshop/react-state-patterns/hooks-pattern/Screen_Recording_2022-05-28_at_12.25.35_PM_hzah1m.mov"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  controls
+/>
+
+We _could_ just add this logic to the `Listing` component itself. However, in order to make the hover logic reusable throughout the application, it makes more sense to create its own hook for it.
+
+<video
+  width="100%"
+  height="430"
+  autoPlay
+  muted
+  loop
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653758714/FM%20Workshop/react-state-patterns/hooks-pattern/trimmed_kwnhio.mov"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  controls
+/>
+
+Now that it's a hook, we can reuse the same logic throughout multiple components in our application. For example, if we also wnated to add the hover logic to the `Image` and `Button` component, we can simply use the hook within these functional components.
+
+<img src="https://res.cloudinary.com/dq8xfyhu4/image/upload/v1653758972/FM%20Workshop/react-state-patterns/hooks-pattern/frontendmasters25.001_tkva9y.png" />
+
+---
+
+### Implementation
+
+React knows a hook is a hook when the name starts with `use`. Since this hook keeps track of the hovering state, it makes sense to name it `useHover`.
+
+Within this hook, we have to keep track of the hovering state by using three build-in hooks:
+
+1. `useState`, which keeps track of whether the component is currently being hovered.
+2. `useRef`, which creates a ref to the component that we're tracking.
+3. `useEffect`, which gets executed as soon as the `ref` has a value. In here, we can add event listeners to the component to keep track of the hovering state.
+
+```js
+export function useHover() {
+  const [isHovering, setIsHovering] = React.useState(false);
+  const ref = React.useRef(null);
+
+  const handleMouseOver = () => setIsHovering(true);
+  const handleMouseOut = () => setIsHovering(false);
+
+  React.useEffect(() => {
+    const node = ref.current;
+    if (node) {
+      node.addEventListener("mouseover", handleMouseOver);
+      node.addEventListener("mouseout", handleMouseOut);
+      return () => {
+        node.removeEventListener("mouseover", handleMouseOver);
+        node.removeEventListener("mouseout", handleMouseOut);
+      };
+    }
+  }, [ref.current]);
+
+  return [ref, isHovering];
+}
+```
+
+We can use this hook in any component that cares about the hovering state.
+
+```js
+import { useHover } from "../hooks/useHover";
+
+export function Listing() {
+  const [ref, isHovering] = useHover();
+
+  React.useEffect(() => {
+    if (isHovering) {
+      // Add logic here
+    }
+  }, [isHovering]);
+
+  return (
+    <div ref={ref}>
+      <ListingCard />
+    </div>
+  );
+}
+```
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Simplifies components</b>: Hooks make it easy to add state to functional
+  components, rather than (usually more complex) class components.
+</Callout>
+
+<Callout type="green">
+  <b>Reusing stateful logic</b>: Hooks allow you to reuse stateful logic among
+  multiple components across the application, which reduces the chances of
+  errors, and allows for composition with plain functions.
+</Callout>
+
+<Callout type="green">
+  <b>Sharing non-visual logic</b>: Hooks make it easy to share non-visual logic,
+  without having to use patterns like HOC or Render Props
+</Callout>
+
+<Callout type="green">
+  <b>Good alternative to older React design patterns</b>: The hooks pattern is a good alternative to an older React design pattern, which is mainly used with Class components, namely the Presentational/Container pattern.
+
+![PresCon](/react-state-patterns/hooks-pattern/prescon.png)
+
+With Hooks, we no longer have to wrap Presentational components in Container components to pass data. Instead, we can directly use the Hook within the presentational component.
+
+![PresCon](/react-state-patterns/hooks-pattern/prescon2.png)
+
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+  <b>Rules of Hooks</b>: Hooks require certain rules to be followed. without a
+  linter plugin, it is difficult to know which rule has been broken, and you can
+  accidentally end up using the wrong built-in hook.
+</Callout>
+
+---
+
+### Exercise
+
+#### Challenge
+
+The code below is using the Container/Presentational pattern to display the listings. Refactor this code so that it uses a hook instead of a container component.
+
+<StackBlitz name="react-ts-6wx6fk" openFile="App.tsx" />
+
+#### Solution
+
+<StackBlitz name="react-ts-mtfg3e" openFile="App.tsx" />

@@ -1,0 +1,95 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Render Props Pattern
+
+Pass JSX elements to components through props
+
+---
+
+### Overview
+
+With the Render Props pattern, we pass components as props to other components. The components that are passed as props can in turn receive props from that component.
+
+Render props make it easy to reuse logic across multiple components.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653712978/FM%20Workshop/react-state-patterns/render-props-pattern/Screen_Recording_2022-05-27_at_11.42.05_PM_h5i8tf.mov"
+  loop
+  muted
+  controls
+/>
+
+---
+
+### Implementation
+
+If we wanted to implement an `input` field with which a user can convert a temperature from Celsius to Kelvin and Fahrenheit, we can use the `renderKelvin` and `renderFahrenheit` render props.
+
+These props receive the `value` of the input, which they convert to the correct temperature in either K or °F.
+
+```js
+function Input(props) {
+  const [value, setValue] = useState("");
+
+  return (
+    <>
+      <input value={value} onChange={(e) => setValue(e.target.value)} />
+      {props.renderKelvin({ value: value + 273.15 })}
+      {props.renderFahrenheit({ value: (value * 9) / 5 + 32 })}
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <Input
+      renderKelvin={({ value }) => <div className="temp">{value}K</div>}
+      renderFahrenheit={({ value }) => <div className="temp">{value}°F</div>}
+    />
+  );
+}
+```
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Reusability</b>: Since render props can be different each time, we can make
+  components that receive render props highly reusable for multiple usecases.
+</Callout>
+
+<Callout type="green">
+  <b>Separation of concerns</b>: We can separate our app's logic from rendering
+  components through render props. The stateful component that receives a render
+  prop can pass the data onto stateless components, which merely render the
+  data.
+</Callout>
+
+<Callout type="green">
+  <b>Solution to HOC problems</b>: Since we explicitly pass props, we solve the
+  HOC's implicit props issue. The props that should get passed down to the
+  element, are all visible in the render prop's arguments list. We know exactly
+  where certain props come from.
+</Callout>
+
+<Callout type="warning">
+  <b>Unnecessary with Hooks</b>: Hooks changed the way we can add reusability
+  and data sharing to components, which can replace the render props pattern in
+  many cases.
+</Callout>
+
+---
+
+### Exercise
+
+#### Challenge
+
+Refactor the following code so that `TemperatureConverter` uses the `renderKelvin` and `renderFahrenheit` props to render the `<Kelvin />` and `<Fahrenheit />` components.
+
+<StackBlitz name="react-ts-asjkqe" openFile="TemperatureConverter.tsx" />{" "}
+
+#### Solution
+
+<StackBlitz name="react-ts-k4wqjw" openFile="TemperatureConverter.tsx" />{" "}

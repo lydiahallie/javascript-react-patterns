@@ -1,0 +1,65 @@
+import StackBlitz from "../../../components/StackBlitz";
+import Callout from "../../../components/Callout";
+
+# Dynamic Import
+
+Import parts of your code on demand
+
+---
+
+### Overview
+
+Statically imported modules are all included in the final bundle of our app, even components that don't need to be rendered right away. Depending on the size of the components and the final bundle, this could lead to a worse initial loading experience, as the client has to download and parse the entire bundle.
+
+In many cases, we can defer the import of modules until they're actually needed, which results in smaller bundles.
+
+Let's say for example that we have a `Search` input component. When a user clicks on the search input, we show a `SearchPopup` component that shows some popular locations.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653361843/FM%20Workshop/performance-patterns/introduction/3_sirztu.mov"
+  loop
+  muted
+  controls
+/>
+
+The `SearchPopup` component isn't instantly visible on the screen - or maybe won't even be visible at all if the user never clicks on the `SearchInput`. We can dynamically import the `SearchPopUp` component, which separates this code from the initial bundle, and creates a separate bundle for just this component.
+
+---
+
+### Implementation
+
+In React, we can dynamically load a component by using `React.Suspense` with `React.lazy`.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1661499325/FM%20Workshop/performance-patterns/dynamic-import/2_fsiqoo.mov"
+  loop
+  muted
+  controls
+/>
+
+The `Suspense` component receives a `fallback`, that gets rendered while the client is fetching the `SearchPopup` bundle.
+
+In this example, `Card1` and `Card2` are statically imported and included in the initial bundle. `Card3` and `Card4` however are dynamically loaded on user interaction.
+
+<StackBlitz name="node-9aihzk" openFile="src/App.js" />
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Faster initial load</b>: Dynamically importing modules reduces the initial
+  bundle size - allowing for a smaller initial load since the client doesn't
+  have to download and execute as much, saving bandwidth.
+</Callout>
+
+<Callout type="warning">
+  <b>Layout shift</b>: A layout shift can occur if your fallback component and
+  the component that eventually gets rendered differ a lot in size.
+</Callout>
+
+<Callout type="warning">
+  <b>User experience</b>: If you're lazy-loading a component that's needed for
+  the initial render, it may unnecessarily result in longer loading times. Try
+  to only lazy load components that aren't visible on the initial render.
+</Callout>

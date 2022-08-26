@@ -1,0 +1,71 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Import on Visibility
+
+Load non-critical components when they are visible in the viewport
+
+---
+
+### Overview
+
+We just saw how we can dynamically import components base on user interaction. However, we can also dynamically import components based on their visibility within the viewport.
+
+For example, if we wanted to show the listings on smaller viewports, not all listings are instantly visible to the user.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653848017/FM%20Workshop/performance-patterns/import-on-visibility/Screen_Recording_2022-05-29_at_1.11.32_PM_myt05s.mov"
+  loop
+  muted
+  controls
+/>
+
+Instead, we can lazy-load the listings, and only load them when they're visible in the viewport when the user scrolls down.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653848015/FM%20Workshop/performance-patterns/import-on-visibility/Screen_Recording_2022-05-29_at_1.12.10_PM_vphgrl.mov"
+  loop
+  muted
+  controls
+/>
+
+---
+
+### Implementation
+
+One way to dynamically import components on interaction, is by using the [Intersection Observer API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API). There's a React hook called [`react-intersection-observer`](https://www.npmjs.com/package/react-intersection-observer) that we can use to easily detect whether a component is visible in the viewport.
+
+Lazy-loading the `Footer` component would result in something like this:
+
+```js
+import { Suspense, lazy } from "react";
+import { useInView } from "react-intersection-observer";
+const Listing = lazy(() => import("./components/Listing"));
+
+function ListingCard(props) {
+  const { ref, inView } = useInView();
+
+  return (
+    <div ref={ref}>
+      <Suspense fallback={<div />}>{inView && <Listing />}</Suspense>
+    </div>
+  );
+}
+```
+
+<StackBlitz name="node-xwpd4p" openFile="src/index.js" view="both" />
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Faster initial load</b>: Dynamically importing modules reduces the initial
+  bundle size - allowing for a smaller initial load since the client doesn't
+  have to download and execute as much, saving bandwidth.
+</Callout>
+
+<Callout type="warning">
+  <b>Layout shift</b>: A layout shift can occur if your fallback component and
+  the component that eventually gets rendered differ a lot in size.
+</Callout>

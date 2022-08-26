@@ -1,0 +1,28 @@
+{
+  "name": "javascript-react-patterns",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next",
+    "start": "next start",
+    "build": "next build ",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@heroicons/react": "1.0.5",
+    "@react-aria/ssr": "3.1.2",
+    "next": "12.1.0",
+    "nextra": "2.0.0-alpha.50",
+    "nextra-theme-docs": "2.0.0-alpha.53",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.13",
+    "@types/react": "17.0.37",
+    "autoprefixer": "10.2.6",
+    "postcss": "8.3.5",
+    "tailwindcss": "3.0.15",
+    "typescript": "^4.8.2"
+  }
+}

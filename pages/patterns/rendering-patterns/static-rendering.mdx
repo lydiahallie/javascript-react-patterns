@@ -1,0 +1,246 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Static Rendering
+
+Deliver pre-rendered HTML content that was generated when the site was built
+
+---
+
+## Static Rendering
+
+### Overview
+
+With static rendering, the HTML contents are pre-generated at build time.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1661500647/FM%20Workshop/rendering-patterns/static-rendering/1_xxvbek.mov"
+  loop
+  muted
+  controls
+/>
+
+When a user requests a statically rendered application, the server responds with the HTML file.
+
+Once the client receives this HTML file, the HTML parser parses the content and renders the non-interactive content to the screen. If a `script` tag is present, the client sends an additional request to fetch this bundle.
+
+When the client has downloaded the JavaScript, it executes its contents and adds event listeners to the HTML elements to make them interactive.
+
+---
+
+### Implementation
+
+The bare minimum required for a static rendered application is to have one single HTML file that contains all the contents of the elements that need to be rendered to the screen.
+
+```jsx
+const listings = [
+  { id: 1, address: "..." },
+  { id: 2, address: "..." },
+];
+
+export default function Home() {
+  return <Listings listings={listings} />;
+}
+```
+
+There can also be an optional JavaScript file, which is only necessary if the components are interactive, to bind event listeners to the already rendered HTML elements.
+
+<StackBlitz name="nextjs-t6w9gw" openFile="components/Listings.js" />
+
+---
+
+### Tradeoffs
+
+<Callout type="info">
+  <b>Performance</b>
+
+![Singleton](/rendering-patterns/static-rendering/1.png)
+
+- **TTFB**: The Time To First Byte can be fast, since the initial HTML does not contain large components.
+- **FCP**: The First Contentful Paint can occur once the JavaScript bundle has downloaded, parsed, and executed its contents.
+- **TTI**: The Time To Interactive can occur once the JavaScript bundle has downloaded, parsed, and executed its contents to bind the event handlers to the components.
+- **LCP**: The Largest Contentful Paint can occur at the same time as the First Contentful Paint, provided there aren't any large components such as large images or videos.
+
+</Callout>
+
+---
+
+<Callout type="green">
+  <b>Cacheability</b>: Pre-rendered HTML files can be cached and served by a
+  global CDN. Users can benefit from quick responses when they request a page,
+  as the request doesn't have to go all the way to the origin server.
+</Callout>
+
+<Callout type="green">
+  <b>SEO</b>: The HTML content can be rendered by web crawlers with no extra
+  effort.
+</Callout>
+
+<Callout type="green">
+  <b>Availability</b>: Static is always online. Even if your backend or data
+  source (e.g. database) goes down, your existing pre-rendered page will still
+  be available.
+</Callout>
+
+<Callout type="green">
+  <b>Backend load</b>: With Static Generation, the database or API wouldn't need
+  to be hit on every request. Page-rendering code wouldn't have to run on every
+  request.
+</Callout>
+
+<Callout type="warning">
+  <b>Dynamic data</b>: If a statically generated page needs dynamic content, for
+  example from an external data source, it needs to fetch this client-side. This
+  can result in a long LCP, and higher server costs.
+</Callout>
+
+---
+
+## Dynamic data
+
+There are several ways to add dynamic data to statically rendered pages, the difference being _when_ this data is fetched.
+
+### Fetch dynamic data at build time
+
+#### Overview
+
+We can fetch data server-side at build time, and generate the HTML based on the fetched data. When you're working with frameworks, they usually offer methods to easily add dynamic data to static pages.
+
+---
+
+#### Implementation
+
+If you're using Next.js, you can do this with the `getStaticProps` method.
+
+```js
+import { Listings, ListingsSkeleton } from "../components";
+
+export default function Home(props) {
+  return <Listings listings={props.listings} />;
+}
+
+export async function getStaticProps() {
+  const res = await fetch("https://my.cms.com/listings");
+  const listings = await res.json();
+
+  return { props: { listings } };
+}
+```
+
+This method runs server-side at build time, generating HTML that contains the fetched data.
+
+<StackBlitz name="nextjs-qja71c" openFile="pages/index.js" />
+
+---
+
+#### Tradeoffs
+
+<Callout type="info">
+  <b>Performance</b>
+
+![Singleton](/rendering-patterns/static-rendering/1.png)
+
+- **TTFB**: The Time To First Byte can be fast, since the initial HTML does not contain large components.
+- **FCP**: The First Contentful Paint can occur once the JavaScript bundle has downloaded, parsed, and executed its contents.
+- **TTI**: The Time To Interactive can occur once the JavaScript bundle has downloaded, parsed, and executed its contents to bind the event handlers to the components.
+- **LCP**: The Largest Contentful Paint can occur at the same time as the First Contentful Paint, provided there aren't any large components such as large images or videos.
+
+</Callout>
+
+<Callout type="green">
+  <b>Static benefits</b>: Since we're still statically generating the HTML
+  files, we can benefit from all the benefit that Plain Static Rendering
+  provided, such as cacheability, a good SEO, a high availability, and a low
+  backend load.
+</Callout>
+
+<Callout type="green">
+  <b>Dynamic data</b>: The `getStaticProps` method allows us to use dynamic
+  data, and renew the data at build time.
+</Callout>
+
+<Callout type="warning">
+  <b>Redeployment needed to refresh data</b>: Since the data only gets
+  regenerated when the page is built, we'd have to redeploy the website to
+  update the contents of the page.
+</Callout>
+
+<Callout type="warning">
+  <b>Long build times</b>: If your applications contains many pages that need to
+  be pre-rendered, this could end up in long build times.
+</Callout>
+
+---
+
+### Fetch dynamic data client-side
+
+#### Overview
+
+One approach to add dynamic data to a staticaly rendered page, is to use a client-side `fetch`. This is usually a great pattern for pages that contain data that should be updated on every request.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653945958/FM%20Workshop/rendering-patterns/static-rendering/Screen_Recording_2022-05-30_at_4.23.23_PM_nqm1lx.mov"
+  loop
+  muted
+  controls
+/>
+
+---
+
+#### Implementation
+
+We can use SWR to fetch the data client-side, and show a skeleton component while the data is being fetched.
+
+```jsx
+import useSWR from "swr";
+import { Listings, ListingsSkeleton } from "../components";
+
+export default function Home() {
+  const { data, loading } = useSWR("/api/listings", (...args) =>
+    fetch(...args).then((res) => res.json())
+  );
+
+  if (loading) {
+    return <ListingsSkeleton />;
+  }
+
+  return <Listings listings={data.listings} />;
+}
+```
+
+<StackBlitz name="nextjs-h2sds6" openFile="pages/_app.js" />
+
+---
+
+#### Tradeoffs
+
+<Callout type="info">
+  <b>Performance</b>
+
+![Singleton](/rendering-patterns/static-rendering/2.png)
+
+- **TTFB**: The Time To First Byte can be fast, since the initial HTML does not contain large components.
+- **FCP**: The First Contentful Paint can occur once the HTML has been parsed and rendered.
+- **LCP**: The Largest Contentful Paint can occur at the same time as the First Contentful Paint, provided there aren't any large components such as large images or videos.
+- **TTI**: The Time To Interactive can occur once the HTML has been rendered, and the JavaScript bundle has been downloaded, parsed, and executed its contents to bind the event handlers to the components.
+
+</Callout>
+
+---
+
+<Callout type="green">
+  <b>Static benefits</b>: Since we're still statically generating the HTML
+  files, we can benefit from all the benefit that Plain Static Rendering
+  provided, such as cacheability, a good SEO, a high availability, and a low
+  backend load.
+</Callout>
+
+<Callout type="warning">
+  <b>Server costs</b>: The data gets requested on every page load, which could
+  result in a higher server costs.
+</Callout>
+
+<Callout type="warning">
+  <b>Layout shift</b>: A layout shift can occur if the skeleton components don't
+  match the rendered components sizes.
+</Callout>

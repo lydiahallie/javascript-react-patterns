@@ -1,0 +1,109 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Module Pattern
+
+Split up your code into smaller, reusable pieces
+
+---
+
+## Overview
+
+ES2015 introduced built-in JavaScript modules. A module is a file containing JavaScript code and makes it easy to expose and hide certain values.
+
+The module pattern is a great way to split a larger file into **multiple smaller**, **reusable pieces**. It also promotes **code encapsulation**, since the values within modules are kept private inside the module by default, and cannot be modified. Only the values that are explicitly exported with the `export` keyword are accessible to other files.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653682630/FM%20Workshop/design-patterns/module-pattern/Screen_Recording_2022-05-27_at_3.15.38_PM_j40sjt.mov"
+  loop
+  muted
+  controls
+/>
+
+The module pattern provides a way to have both public and private pieces with the `export` keyword. This protects values from leaking into the global scope or ending up in a naming collision.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1654008290/FM%20Workshop/design-patterns/module-pattern/Screen_Recording_2022-05-31_at_9.43.04_AM_dbq340.mov"
+  loop
+  muted
+  controls
+/>
+
+In the above example, the `secret` variable is accessible within the module, but not outside of it. Other modules cannot import this value, as it hasn't been `export`ed.
+
+---
+
+Without modules, we can access properties defined in scripts that are loaded prior to the currently running script.
+
+<StackBlitz
+  name="web-platform-m5uykm"
+  openFile="index.html"
+  view="both"
+  showDevtools
+/>
+
+With modules however, we can only use the values that have been exported.
+
+---
+
+## Implementation
+
+There are a few ways we can use modules.
+
+### HTML tag
+
+When adding JavaScript to HTML files directly, you can use modules by adding the `type="module"` attribute to the `script` tags.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653509683/FM%20Workshop/design-patterns/module-pattern/Screen_Recording_2022-05-25_at_3.12.53_PM_t2xcdy.mov"
+  loop
+  muted
+  controls
+/>
+
+<StackBlitz
+  name="web-platform-xqnmbb"
+  openFile="index.js"
+  view="both"
+  showDevtools
+/>
+
+### Node
+
+In Node, you can use ES2015 modules either by:
+
+- Using the `.mjs` extension
+- Adding `"type": "module"` to your `package.json`
+
+<StackBlitz name="node-ygc5wn" openFile="index.js" view="editor" />
+
+---
+
+## Tradeoffs
+
+<Callout type="green">
+  <b>Encapsulation</b>: The values within a module are scoped to that specific
+  module. Values that aren't explicitly exported are not available outside of
+  the module.
+</Callout>
+
+<Callout type="green">
+  <b>Reusability</b>: We can reuse modules throughout our application
+</Callout>
+
+---
+
+## Exercise
+
+### Challenge
+
+1. Split the code below up into two pieces, `math.js` that includes the `add`, `subtract`, `divide` and `multiply` methods. The `index.js` file contains the remaining functionality.
+2. Use ES2015 modules to export the `add`, `subtract`, `divide` and `multiply` methods from the `math.js` file, and import them in `index.js`
+
+<StackBlitz name="node-rakood" openFile="index.js" view="editor" />
+
+---
+
+### Solution
+
+<StackBlitz name="node-9bkucv" openFile="README.md" view="editor" />

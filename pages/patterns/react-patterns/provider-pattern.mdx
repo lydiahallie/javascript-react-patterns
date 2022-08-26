@@ -1,0 +1,207 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Provider Pattern
+
+Make data available to multiple child components
+
+---
+
+### Overview
+
+The Provider Pattern uses React's `Context` API - which is a way to easily share data between components.
+
+Let's say that we want to add a theme toggle to our landing page, where users can switch between light mode and dark mode.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653773352/FM%20Workshop/react-state-patterns/provider-pattern/Screen_Recording_2022-05-28_at_4.27.39_PM_jkqmfp.mov"
+  loop
+  muted
+  controls
+/>
+
+Several components change their style based on the currently active theme, such as the `TopNav`, the `Listing` cards, the `Main` section, and the `Toggle`.
+
+With the Provider pattern, we can share the theme state across multiple components throughout our application. The provider _provides_ this context to components, which in turn _consume_ this data.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653773168/FM%20Workshop/react-state-patterns/provider-pattern/Screen_Recording_2022-05-28_at_4.25.06_PM_qpck4z.mov"
+  loop
+  muted
+  controls
+/>
+
+---
+
+##### Prop-drilling
+
+Before the Context API was available, we often ended up we often end up with something called _prop drilling_ when we wanted to share data across multiple components. This is the case when we pass props far down the component tree.
+
+![PresCon](https://res.cloudinary.com/dq8xfyhu4/image/upload/v1653774712/FM%20Workshop/react-state-patterns/provider-pattern/frontendmasters26.001_ztmpdv.png)
+
+However, passing props down this way can get quite insecure and complex, and it's simply not a very scalable approach. We cannot easily rename a `prop`, or restructure the component tree. It can also easily lead to a decreased performance, since all child components need to re-render on a state update, even if they aren't consuming that data.
+
+The provider pattern solves this by exposing the values of the `Context` to all children within a `Provder`. A component can optionally consume this data, making it possible to pass data to multiple components without prop drilling.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653774702/FM%20Workshop/react-state-patterns/provider-pattern/Screen_Recording_2022-05-28_at_4.50.34_PM_n4abmn.mov"
+  loop
+  muted
+  controls
+/>
+
+Only the components that care about the data get re-rendered when the state updates.
+
+---
+
+### Implementation
+
+A `Provider` is a higher order component provided to us by the `Context` object. We can create a `Context` object, using the `createContext` method that React provides for us.
+
+```js
+export const ThemeContext = React.createContext(null);
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = React.useState("light");
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+Any component wrapped in the `ThemeProvider` now has access to the `theme` and `setTheme` properties.
+
+```js
+import { ThemeProvider, ThemeContext } from "../context";
+
+const LandingPage = () => {
+  <ThemeProvider>
+    <TopNav />
+    <Main />
+  </ThemeProvider>;
+};
+
+const TopNav = () => {
+  return (
+    <ThemeContext.Consumer>
+      {{ theme }} =>{" "}
+      <div style={{ backgroundColor: theme === "light" ? "#fff" : "#000 " }}>
+        ...
+      </div>{" "}
+      }
+    </ThemeContext.Consumer>
+  );
+};
+
+const Toggle = () => {
+  return (
+    <ThemeContext.Consumer>
+      {{ theme, setTheme }} => (
+      <button
+        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        style={{
+          backgroundColor: theme === "light" ? "#fff" : "#000",
+          color: theme === "light" ? "#000" : "#fff",
+        }}
+      >
+        Use {theme === "light" ? "Dark" : "Light"} Theme
+      </button>
+      )}
+    </ThemeContext.Consumer>
+  );
+};
+```
+
+However, we can also combine the Provider with the Hooks pattern. Instead of wrapping components in a `<ThemeContext.Consumer>` component, we can use the built-in `useContext` hook.
+
+```js
+export const ThemeContext = React.createContext(null);
+
+export function useThemeContext() {
+  const { theme, setTheme } = useContext(ThemeContext);
+
+  return { theme, setTheme };
+}
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = React.useState("light");
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+Each component that needs to have access to the `ThemeContext`, can now simply use the `useThemeContext` hook.
+
+```js
+import { useThemeContext } from "../context";
+
+const LandingPage = () => {
+  <ThemeProvider>
+    <TopNav />
+    <Main />
+  </ThemeProvider>;
+};
+
+const TopNav = () => {
+  const { theme } = useThemeContext();
+  return (
+    <div style={{ backgroundColor: theme === "light" ? "#fff" : "#000 " }}>
+      ...
+    </div>
+  );
+};
+
+const Toggle = () => {
+  const { theme, setTheme } = useThemeContext();
+  return (
+    <button
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      style={{
+        backgroundColor: theme === "light" ? "#fff" : "#000",
+        color: theme === "light" ? "#000" : "#fff",
+      }}
+    >
+      Use {theme === "light" ? "Dark" : "Light"} Theme
+    </button>
+  );
+};
+```
+
+By creating hooks for the different contexts, it's easy to separate the providers's logic from the components that render the data.
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Scalability</b>: There's less risk involved when sharing state across
+  multiple components with the Provider Pattern, as we can easily rename values
+  when our application grows, and easily reuse components.
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+  <b>Performance</b>: Components that consume the `Provider`'s context re-render
+  whenever a value changes. This can cause performance issues If you aren't
+  careful which components are consuming the context.
+</Callout>
+
+---
+
+### Exercise
+
+#### Challenge
+
+The application below contains a `Listings` component and an `Input` component that both use the `useListings` hook. However, this results in two separate calls to the API. Refactor this code so that it uses a `ListingsProvider` that provides the listings data to both components.
+
+<StackBlitz name="react-ts-mtfg3e" openFile="App.tsx" />
+
+#### Solution
+
+<StackBlitz name="react-ts-emyjl9" openFile="App.tsx" />

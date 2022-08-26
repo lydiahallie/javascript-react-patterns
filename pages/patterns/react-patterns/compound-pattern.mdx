@@ -1,0 +1,222 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Compound Pattern
+
+Create multiple components that work together to perform a single task
+
+---
+
+### Overview
+
+With the Compound Pattern, we can create multiple components that work together to perform one single task.
+
+Let's say for example that we have a `Search` input component. When a user clicks on the search input, we show a `SearchPopup` component that shows some popular locations.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653361843/FM%20Workshop/performance-patterns/introduction/3_sirztu.mov"
+  loop
+  muted
+  controls
+/>
+
+To create this behavior, we can create a `FlyOut` compound component.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653790454/FM%20Workshop/react-state-patterns/compound-pattern/Screen_Recording_2022-05-28_at_9.12.49_PM_qqk0tm.mov"
+  loop
+  muted
+  controls
+/>
+
+This `FlyOut` component is an example of a compound component, as it also exposes some sub-components that all work together to toggle and render the `FlyOut` component.
+
+```js
+import React from "react";
+import { FlyOut } from "./FlyOut";
+
+export default function SearchInput() {
+  return (
+    <FlyOut>
+      <FlyOut.Input placeholder="Enter an address, city, or ZIP code" />
+      <FlyOut.List>
+        <FlyOut.ListItem value="San Francisco, CA">
+          San Francisco, CA
+        </FlyOut.ListItem>
+        <FlyOut.ListItem value="Seattle, WA">Seattle, WA</FlyOut.ListItem>
+        <FlyOut.ListItem value="Austin, TX">Austin, TX</FlyOut.ListItem>
+        <FlyOut.ListItem value="Miami, FL">Miami, FL</FlyOut.ListItem>
+        <FlyOut.ListItem value="Boulder, CO">Boulder, CO</FlyOut.ListItem>
+      </FlyOut.List>
+    </FlyOut>
+  );
+}
+```
+
+The `FlyOut` compound component is a stateful component - which means we don't have to add the stateful logic to the `SearchInput` component.
+
+---
+
+### Implementation
+
+We can implement the Compound pattern using either a Provider, or `React.Children.map`.
+
+#### Provider
+
+The `FlyOut` compound component consists of:
+
+- `FlyoutContext` to keep track of the visbility state of `FlyOut`
+- `Input` to toggle the `FlyOut`'s `List` component's visibility
+- `List` to render the `FlyOut`'s `ListItems`s
+- `ListItem` that gets rendered within the `List`.
+
+```js
+const FlyOutContext = React.createContext();
+
+export function FlyOut(props) {
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
+  const toggle = React.useCallback(() => setOpen((state) => !state), []);
+
+  return (
+    <FlyOutContext.Provider value={{ open, toggle, value, setValue }}>
+      <div>{props.children}</div>
+    </FlyOutContext.Provider>
+  );
+}
+
+function Input(props) {
+  const { value, toggle } = React.useContext(FlyOutContext);
+
+  return <input onFocus={toggle} onBlur={toggle} value={value} {...props} />;
+}
+
+function List({ children }) {
+  const { open } = React.useContext(FlyOutContext);
+
+  return open && <ul>{children}</ul>;
+}
+
+function ListItem({ children, value }) {
+  const { setValue } = React.useContext(FlyOutContext);
+
+  return <li onMouseDown={() => setValue(value)}>{children}</li>;
+}
+
+FlyOut.Input = Input;
+FlyOut.List = List;
+FlyOut.ListItem = ListItem;
+```
+
+Although we didn't have to name our compound component's sub-components `FlyOut.<ComponentName>`, it's an easy way to identify compound components, and only requires a single import.
+
+---
+
+#### `React.Children.map`
+
+Another way to implement the Compound pattern, is to use `React.Children.map` in combination with `React.cloneElement`. Instead of having to use the Context API like in the previous example, we now have access to these two values through `props`.
+
+```js
+export function FlyOut(props) {
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
+  const toggle = React.useCallback(() => setOpen((state) => !state), []);
+
+  return (
+    <div>
+      {React.Children.map(props.children, (child) =>
+        React.cloneElement(child, { open, toggle, value, setValue })
+      )}
+    </div>
+  );
+}
+
+function Input(props) {
+  const { value, toggle } = React.useContext(FlyOutContext);
+
+  return <input onFocus={toggle} onBlur={toggle} value={value} {...props} />;
+}
+
+function List({ children }) {
+  const { open } = React.useContext(FlyOutContext);
+
+  return open && <ul>{children}</ul>;
+}
+
+function ListItem({ children, value }) {
+  const { setValue } = React.useContext(FlyOutContext);
+
+  return <li onMouseDown={() => setValue(value)}>{children}</li>;
+}
+
+FlyOut.Input = Input;
+FlyOut.List = List;
+FlyOut.ListItem = ListItem;
+```
+
+All children components are cloned, and passed the value of `open`, `toggle`, `value` and `setValue`.
+
+<StackBlitz name="react-ts-bzkabr" openFile="Input/Input.tsx" />
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>State management</b>: Compound components manage their own internal state,
+  which they share among the several child components. When implementing a
+  compound component, we don't have to worry about managing the state ourselves.
+</Callout>
+
+<Callout type="green">
+  <b>Single import</b>: When importing a compound component, we don't have to
+  explicitly import the child components that are available on that component.
+</Callout>
+
+<Callout type="warning">
+  <b>Nested components</b>: When using `React.Children.map`, only direct children of the parent component will have access to the open and toggle props, meaning we can't wrap any of these components in another component.
+
+```js
+function FlyoutMenu() {
+  return (
+    <FlyOut>
+      {/* This breaks, since the direct child of FlyOut is now a div */}
+      <div>
+        <FlyOut.Input />
+        <FlyOut.List>
+          <FlyOut.ListItem>San Francisco, CA</FlyOut.ListItem>
+          <FlyOut.ListItem>Seattle, WA</FlyOut.ListItem>
+        </FlyOut.List>
+      </div>
+    </FlyOut>
+  );
+}
+```
+
+</Callout>
+
+<Callout type="warning">
+  <b>Naming collisions</b>: Cloning an element with `React.cloneElement`
+  performs a shallow merge. If we pass a prop that already exists on the
+  component, in this example `open` or `toggle`, a naming collision occurs, and
+  the value of these props will be overwritten with the latest value that we
+  pass.
+</Callout>
+
+---
+
+### Challenge
+
+#### Exercise
+
+Create a `FlyOut` component that gets rendered by the `Input` component. This component should contain:
+
+- `FlyOut.Input` to render the input field
+- `FlyOut.List` to render the list items
+- `FlyOut.ListItem` to render the list items
+
+<StackBlitz name="react-ts-xmnxls" openFile="App.tsx" />
+
+#### Solution
+
+<StackBlitz name="react-ts-vh2s2b" openFile="App.tsx" />

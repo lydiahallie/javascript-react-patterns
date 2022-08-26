@@ -1,0 +1,131 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Browser Hints
+
+Use hints to inform the browser about (optionally) critical resources
+
+---
+
+## Prefetch
+
+Fetch and cache resources that may be requested some time soon
+
+### Overview
+
+The `prefetch` browser hint can be used to fetch resources that may be needed some time soon, but not immediately on the initial load. This can be the case on subsequent requests or page navigations that a user is likely to make.
+
+A prefetched resource is fetched when the browser is idle and has calculated that it's got enough bandwidth, after which it caches the prefetched resource. When the client actually needs the resource, it can easily get it from cache instead of having to make a request to the server.
+
+![Prefetch](/performance-patterns/browser-hints/prefetch.png)
+
+For example if we use route-based splitting, and we know that most users will navigate to the `/about` route, we can prefetch this route to get a faster navigation, resulting in a better UX.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653920978/FM%20Workshop/performance-patterns/browser-hints/trimeed_vp4zg5.mov"
+  loop
+  muted
+  controls
+/>
+
+Instead of waiting for a user interaction to fetch the `about.bundle.js` bundle, the browser prefetched this resource when it was idle. Once the user actually navigates to the `/about` page, the bundle can quickly load from cache instead of making a request to the server.
+
+---
+
+### Implementation
+
+We can prefetch a resource by explicitly adding it to the `head` of the `html` document.
+
+```html
+<link rel="prefetch" href="./about.bundle.js" />
+```
+
+If you're using Webpack, you can prefetch it dynamically by using the `/* webpackPrefetch: true */` magic comment.
+
+```js
+const About = lazy(() => import(/* webpackPrefetch: true */ "./about"));
+```
+
+<StackBlitz name="node-srhbqm" openFile="src/index.js" />
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Loading time</b>: The browser can quickly load and render the component
+  from cache, instead of having to make a request to the server.
+</Callout>
+
+<Callout type="warning">
+  <b>Unnecessary</b>: If the user ended up never navigating to the `About`
+  route, we unnecessarily loaded the resource, which could negatively affect the
+  app's performance and be costly to the user.
+</Callout>
+
+---
+
+## Preload
+
+Inform the browser of critical resources before they are discovered
+
+### Overview
+
+The `preload` browser hint can be used to fetch resources that are critical to the current navigation, such as fonts or images are instantly (not longer than 3 seconds after the initial load) visible on a landing page.
+
+![Preload](/performance-patterns/browser-hints/preload.png)
+
+With `prefetch`, the browser would only actually prefetch the resource if the conditions were good enough to not negatively affect the user experience. Unlike a prefetch, a preloaded resource gets fetched no matter what.
+
+For example, if we wanted to show the `SearchFlyout` instantly on the landing page, we can preload this resource to make sure the user won't have to wait too long before this resource is available.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653923121/FM%20Workshop/performance-patterns/browser-hints/Screen_Recording_2022-05-30_at_10.04.41_AM_g34lli.mov"
+  loop
+  muted
+  controls
+/>
+
+The `search-flyout.bundle.js` bundle is fetched in parallel with the `main.bundle.js`. When the client actually needs to render the resource, which happens soon after the initial load, it can quickly retrieve it from the HTTP cache.
+
+---
+
+### Implementation
+
+We can preload a resource by explicitly adding it to the `head` of the `html` document.
+
+```html
+<link rel="preload" href="./search-flyout.bundle.js" />
+```
+
+If you're using Webpack, you can preload it dynamically by using the `/* webpackPreload: true */` magic comment.
+
+```js
+const SearchFlyout = lazy(() =>
+  import(/* webpackPreload: true */ "./SearchFlyout")
+);
+```
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Loading time</b>: The browser can quickly load and render the component
+  from cache, instead of having to make a request to the server.
+</Callout>
+
+<Callout type="green">
+  <b>Layout shift</b>: Preloading styles, fonts and images can reduce layout
+  shift.
+</Callout>
+
+<Callout type="warning">
+  <b>Performance</b>: Since preloaded assets will get fetched no matter what, it's important to only preload resources that are actually instantly necessary. In most cases, it's worth either `prefetch`ing the resource, or if it's JavaScript, using a `script` with an `async` or `defer` attribute.
+
+```js
+  <link href="./script" rel="preload" />
+  <script rel="defer" src="./script" />
+```
+
+</Callout>

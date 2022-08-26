@@ -1,0 +1,161 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Container/Presentational Pattern
+
+Enforce separation of concerns by separating the view from the application logic.
+
+---
+
+### Overview
+
+We can use the Container/Presentational pattern to separate the logic of a component from the view. To achieve this, we need to have a:
+
+- **Presentational** Component, that cares about **how** data is shown to the user.
+- **Container** Component, that cares about **what** data is shown to the user.
+
+For example, if we wanted to show listings on the landing page, we could use a container component to fetch the data for the recent listings, and use a presentational component to actually render this data.
+
+<video
+  width="100%"
+  height="430"
+  autoPlay
+  muted
+  loop
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653700248/FM%20Workshop/react-state-patterns/con-pres/Screen_Recording_2022-05-27_at_8.08.53_PM_kyd2eq.mov"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  controls
+/>
+
+---
+
+### Implementation
+
+We can implement the Container/Presentational pattern using either Class Components or functional components.
+
+```js
+import React from "react";
+import { LoadingListings, Listing, ListingsGrid } from "../components";
+
+function ListingsContainerComponent() {
+  const [listings, setListings] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch("https://my.cms.com/listings")
+      .then((res) => res.json())
+      .then((res) => setListings(res.listings));
+  }, []);
+
+  return <Listings listings={listings} />;
+}
+
+function ListingsPresentationalComponent(props) {
+  if (props.listings.length === 0) {
+    return <LoadingListings />;
+  }
+
+  return (
+    <ListingsGrid>
+      {listings.map((listing) => (
+        <Listing listing={listing} />
+      ))}
+    </ListingsGrid>
+  );
+}
+```
+
+---
+
+### Tradeoffs
+
+<Callout type="green">
+  <b>Separation of concerns</b>: Presentational components can be pure functions
+  which are responsible for the UI, whereas container components are responsible
+  for the state and data of the application. This makes it easy to enforce the
+  separation of concerns.
+</Callout>
+
+<Callout type="green">
+  <b>Reusability</b>: We can easily reuse the presentational components
+  throughout our application for different purposes.
+</Callout>
+
+<Callout type="green">
+  <b>Flexibility</b>: Since presentational components don't alter the
+  application logic, the appearance of presentational components can easily be
+  altered by someone without knowledge of the codebase, for example a designer.
+  If the presentational component was reused in many parts of the application,
+  the change can be consistent throughout the app.
+</Callout>
+
+<Callout type="green">
+  <b>Testing</b>: Testing presentational components is easy, as they are usually
+  pure functions. We know what the components will render based on which data we
+  pass, without having to mock a data store.
+</Callout>
+
+<Callout type="warning"  emoji="⚠️">
+  <b>Not necessary with Hooks</b>: Hooks make it possible to achieve the same result without having to use the Container/Presentational pattern.
+
+For example, we can use SWR to easily fetch data and conditionally render the listings or the skeleton component. Since we can use hooks in functional components and keep the code small and maintainable, we don't have to split the component into a container and presentational component.
+
+```js
+import React from "react";
+import useSWR from "swr";
+import { LoadingListings, Listing, ListingsGrid } from "../components";
+
+function Listings(props) {
+  const {
+    data: listings,
+    loading,
+    error,
+  } = useSWR("https://my.cms.com/listings", (url) =>
+    fetch(url).then((r) => r.json())
+  );
+
+  if (loading) {
+    return <LoadingListings />;
+  }
+
+  return (
+    <ListingsGrid>
+      {listings.map((listing) => (
+        <Listing listing={listing} />
+      ))}
+    </ListingsGrid>
+  );
+}
+```
+
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+  <b>Overkill</b>: The Container/Presentational pattern can easily be an
+  overkill in smaller sized application.
+</Callout>
+
+---
+
+## Exercise
+
+We have a `Listings` component that both contains the fetching logic, as well as the rendering logic. In order to make the fetching logic more reusable, we can split this component up into a container and presentational component.
+
+#### Challenge
+
+Remove the data fetching logic from the `Listings` component, and move this to a separate `ListingsContainer` component located in `/components/container/Listings.tsx`
+
+<StackBlitz
+  name="react-ts-mu6zaj"
+  openFile="components/presentational/Listings.tsx"
+  view="both"
+/>
+
+#### Solution
+
+<StackBlitz
+  name="react-ts-emrozx"
+  openFile="components/container/Listings.tsx"
+  view="both"
+/>

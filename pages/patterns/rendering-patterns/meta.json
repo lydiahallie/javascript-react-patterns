@@ -1,0 +1,8 @@
+{
+  "introduction": "1. Introduction",
+  "client-side-rendering": "2. Client-Side Rendering",
+  "static-rendering": "3. Static Rendering",
+  "incremental-static-regeneration": "4. Incremental Static Regeneration",
+  "server-side-rendering": "5. Server-Side Rendering",
+  "streaming-ssr": "6. Streaming SSR"
+}

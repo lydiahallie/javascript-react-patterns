@@ -1,0 +1,103 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Server-Side Rendering
+
+Generate HTML on every request
+
+---
+
+### Overview
+
+With Server-Side rendering, we can generate HTML on the server (or serverless function) on every request.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/l_logo_pke9dv,o_52,x_-1510,y_-900/ac_none/v1609691928/CS%20Visualized/Screen_Recording_2022-05-05_at_5.31.41_PM_oxsq12.webm"
+  loop
+  muted
+  controls
+/>
+
+When a user requests a server-side rendered application, the server generates the HTML, and returns this to the client.
+
+The browser renders this content, which is initially just plain non-interactive HTML elements. To bind event listeners to the components, the client sends an additional request to fetch the JavaScript bundle to hydrate the components.
+
+---
+
+### Implementation
+
+When server-side rendering an application, we need a method to render HTML from our React components on the server, and hydrate the non-interactive HTML on the client. One way to render HTML on the server, is by using the `renderToString` method. This function returns an HTML string corresponding to the React element. The HTML can then be rendered to the client for a faster page load, and hydrated with the `hydrateRoot` method on the client.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653963256/FM%20Workshop/rendering-patterns/server-side-rendering/Screen_Recording_2022-05-30_at_9.13.13_PM_lfupox.mov"
+  loop
+  muted
+  controls
+/>
+
+---
+
+React frameworks such as Next.js, Remix and Astro make it easy to server-render (parts of) your application.
+
+When using Next.js, we can server-render a page by using the `getServerSideProps` method.
+
+```js
+import { Listings, ListingsSkeleton } from "../components";
+
+export default function Home(props) {
+  return <Listings listings={props.listings} />;
+}
+
+export async function getServerSideProps({ req, res }) {
+  const res = await fetch("https://my.cms.com/listings");
+  const listings = await res.json();
+
+  return {
+    props: { listings },
+  };
+}
+```
+
+This methods runs on every request, and passes the props to the page to be dynamically generated.
+
+<StackBlitz name="nextjs-jqm32p" openFile="pages/index.js" />
+
+---
+
+### Tradeoffs
+
+<Callout type="info">
+  <b>Performance</b>
+
+![SSR](/rendering-patterns/server-side-rendering/1.png)
+
+- **TTFB**: The TTFB can be slow, since the page still has to be generated on-demand.
+- **FCP**: The First Contentful Paint can occur once the HTML has been parsed and rendered.
+- **LCP**: The Largest Contentful Paint can occur at the same time as the First Contentful Paint, provided there aren't any large components such as large images or videos.
+- **TTI**: The Time To Interactive can occur once the HTML has been rendered, and the JavaScript bundle has been downloaded, parsed, and executed its contents to bind the event handlers to the components.
+
+</Callout>
+
+---
+
+<Callout type="green">
+  <b>Personalized pages</b>: Server-rendering is useful for pages that need
+  request-based data, such as a user cookie.
+</Callout>
+
+<Callout type="green">
+  <b>Render blocking</b>: Server-rendering can block the generation of pages
+  that are authentication-based.
+</Callout>
+
+<Callout type="warning">
+  <b>Initial load</b>: Since the page still has to be generated when the user requests it, it can take a while before the user can see something rendered on their screens. To optimize SSR, you can:
+
+1. Optimize database queries. If the distance between your server and database is long, it can take a while to establish a connection and retrieve data. Consider moving your database or server closer to each other.
+2. Add `Cache-Control` headers to your responses.
+
+</Callout>
+
+<Callout type="warning">
+  <b>Availability</b>: If your server or region goes down, so does your website.
+</Callout>

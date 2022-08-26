@@ -1,0 +1,193 @@
+import Callout from "../../../components/Callout";
+
+# Rendering Patterns
+
+Rendering content on the web can be done in many ways. The decision _how_ and _where_ to fetch and render content is key to the performance of an application.
+
+The available frameworks and libraries can be used to implement different rendering patterns like Client-Side Rendering, Static Rendering, Incremental Static Regeneration, Progressive Rendering, Server-Side Rendering and many more. Understanding the tradeoffs and use cases for these patterns can drastically help the performance of your application, resulting in a great user and developer experience.
+
+---
+
+### Web Vitals
+
+To measure how well our website performs, we can use a set of useful measurements called Web Vitals. A subset of these measurements - the Core Web Vitals - is usually used to determine the performance of a page, and can affect your website's SEO.
+
+<div className="grid grid-cols-1 mt-12 gap-x-6 gap-y-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3 lg:gap-x-2 lg:gap-y-2">
+  <div className="p-6 bg-white shadow-lg rounded-sm dark:bg-opacity-10 ">
+    <div>
+      <h3 className="text-sm font-bold dark:text-white m-0">
+        <p
+          className="bg-purple-500 rounded-sm"
+          style={{
+            padding: "0px 10px",
+            width: "55px",
+          }}
+        >
+          TTFB
+        </p>
+      </h3>
+      <div className="mt-5 text-base font-medium text-white">
+        <b style={{ color: "white" }}>Time To First Byte</b>
+        <p
+          className="text-base font-regular text-gray-400"
+          style={{
+            marginTop: "0",
+          }}
+        >
+          Time it takes for a client to receive the first byte of page content
+        </p>
+      </div>
+    </div>
+  </div>
+  <div className="p-6 bg-white shadow-lg rounded-sm dark:bg-opacity-10">
+    <div>
+      <h3 className="text-sm font-bold dark:text-white m-0">
+        <p
+          className="bg-purple-500 rounded-sm"
+          style={{
+            padding: "0px 10px",
+            width: "48px",
+          }}
+        >
+          FCP
+        </p>
+      </h3>
+      <div className="mt-5 text-base font-medium text-white">
+        <b style={{ color: "white" }}>First Contentful Paint</b>
+        <p
+          className="text-base font-regular text-gray-400"
+          style={{
+            marginTop: "0",
+          }}
+        >
+          Time it takes the browser to render the first piece of content after
+          navigation
+        </p>
+      </div>
+    </div>
+  </div>
+  <div className="p-6 bg-white shadow-lg rounded-sm dark:bg-opacity-10">
+    <div>
+      <h3 className="text-sm font-bold dark:text-white m-0">
+        <p
+          className="bg-purple-500 rounded-sm"
+          style={{
+            padding: "0px 10px",
+            width: "48px",
+          }}
+        >
+          LCP
+        </p>
+      </h3>
+      <div className="mt-5 text-base font-medium text-white">
+        <b style={{ color: "white" }}>Largest Contentful Paint</b>
+        <p
+          className="text-base font-regular text-gray-400"
+          style={{
+            marginTop: "0",
+          }}
+        >
+          Time it takes to load and render the page's main content
+        </p>
+      </div>
+    </div>
+  </div>
+  <div className="p-6 bg-white shadow-lg rounded-sm dark:bg-opacity-10">
+    <div>
+      <h3 className="text-sm font-bold dark:text-white m-0">
+        <p
+          className="bg-purple-500 rounded-sm"
+          style={{
+            padding: "0px 10px",
+            width: "46px",
+          }}
+        >
+          TTI
+        </p>
+      </h3>
+      <div className="mt-5 text-base font-medium text-white">
+        <b style={{ color: "white" }}>Time To Interactive</b>
+        <p
+          className="text-base font-regular text-gray-400"
+          style={{
+            marginTop: "0",
+          }}
+        >
+          Time from when the page starts loading to when it's reliably
+          responding to user input quickly
+        </p>
+      </div>
+    </div>
+  </div>
+  <div className="p-6 bg-white shadow-lg rounded-sm dark:bg-opacity-10">
+    <div>
+      <h3 className="text-sm font-bold dark:text-white m-0">
+        <p
+          className="bg-purple-500 rounded-sm"
+          style={{
+            padding: "0px 10px",
+            width: "48px",
+          }}
+        >
+          CLS
+        </p>
+      </h3>
+      <div className="mt-5 text-base font-medium text-white">
+        <b style={{ color: "white" }}>Cumulative Layout Shift</b>
+        <p
+          className="text-base font-regular text-gray-400"
+          style={{
+            marginTop: "0",
+          }}
+        >
+          Measures visual stability to avoid unexpected layout shift
+        </p>
+      </div>
+    </div>
+  </div>
+  <div className="p-6 bg-white shadow-lg rounded-sm dark:bg-opacity-10">
+    <div>
+      <h3 className="text-sm font-bold dark:text-white m-0">
+        <p
+          className="bg-purple-500 rounded-sm"
+          style={{
+            padding: "0px 10px",
+            width: "44px",
+          }}
+        >
+          FIP
+        </p>
+      </h3>
+      <div className="mt-5 text-base font-medium text-white">
+        <b style={{ color: "white" }}>First Input Delay</b>
+        <p
+          className="text-base font-regular text-gray-400"
+          style={{
+            marginTop: "0",
+          }}
+        >
+          Time from when the user interacts with the page to the time when the
+          event handlers are able to run
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+The following terms will be useful when covering the different rendering techniques:
+
+<Callout type="info">
+  - **Compiling**: Converting JavaScript into native machine code - **Execution
+  time**: The time it takes to execute the previously fetched, parsed, and
+  compiled data - **Hydration**: Attaching handlers to a DOM node whose HTML
+  contents were server-rendered, making the component interactive - **Idle**:
+  The browser's state when it's not performing any action - **Loading time**:
+  The time it takes to fetch the data from the server - **Main thread**: The
+  thread on which the browser executes all the JavaScript, performs layout,
+  reflows, and garbage collection - **Parsing**: Converting an HTML source into
+  DOM nodes, and generating an AST - **Processing**: Parsing, compiling, and
+  executing the previously fetched data - **Processing time**: The time it takes
+  to parse and compile the previously fetched data
+</Callout>

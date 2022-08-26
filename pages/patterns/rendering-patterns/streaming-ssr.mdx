@@ -1,0 +1,73 @@
+import Callout from "../../../components/Callout";
+import StackBlitz from "../../../components/StackBlitz";
+
+# Streaming Server-Side Rendering
+
+Generate HTML on every request, sending it down piece by piece
+
+---
+
+### Overview
+
+Streaming Server-Side rendering allows us to send components down to the client as soon as they've been generated.
+
+With regular Server-Side rendering, the user has to wait for the entire HTML to be generated on the server before it gets send down to the client. Before hydration could begin, the entire bundle had to be downloaded and executed.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653964487/FM%20Workshop/rendering-patterns/streaming-ssr/Screen_Recording_2022-05-30_at_9.33.22_PM_zmfqd2.mov"
+  loop
+  muted
+  controls
+/>
+
+However, with streaming server-side rendering, the components get streamed down as soon as they're ready.
+
+<video
+  src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653964487/FM%20Workshop/rendering-patterns/streaming-ssr/Screen_Recording_2022-05-30_at_9.34.14_PM_spzmu3.mov"
+  loop
+  muted
+  controls
+/>
+
+---
+
+### Implementation
+
+---
+
+### Tradeoffs
+
+<Callout type="info">
+  <b>Performance</b>
+
+![SSR](/rendering-patterns/streaming-ssr/1.png)
+
+- **TTFB**: The TTFB can be slow, since the page still has to be generated on-demand.
+- **FCP**: The First Contentful Paint can occur once the HTML has been parsed and rendered.
+- **LCP**: The Largest Contentful Paint can occur at the same time as the First Contentful Paint, provided there aren't any large components such as large images or videos.
+- **TTI**: The Time To Interactive can occur once the HTML has been rendered, and the JavaScript bundle has been downloaded, parsed, and executed its contents to bind the event handlers to the components.
+
+</Callout>
+
+---
+
+<Callout type="green">
+  <b>Performance regardless of page size</b>: With Streaming SSR, we can have a
+  fast TTFB since the first byte reaches the client soon after rendering starts
+  on the server. This results in a good TTFB for any page of any size.
+</Callout>
+
+<Callout type="green">
+  <b>Network Backpressure</b>: If the network is clogged and not able to
+  transfer any more bytes, the renderer gets a signal and stops streaming till
+  the network is cleared up. Thus, the server uses less memory and is more
+  responsive to I/O conditions. This enables your Node.js server to render
+  multiple requests at the same time and prevents heavier requests from blocking
+  lighter requests for a long time. As a result, the site stays responsive even
+  in challenging conditions.
+</Callout>
+
+<Callout type="warning">
+  <b>Support</b>: Not all runtimes support HTTP streaming, which is necessary
+  for streaming SSR.
+</Callout>
