@@ -10,8 +10,8 @@ const features = [
     icon: PuzzleIcon,
   },
   {
-    name: "React Patterns",
-    icon: () => <img src="/react.svg" height="20" width="20" />,
+    name: " React Patterns",
+    icon: () => <img src="/react.svg" height="24" width="24" />,
   },
   {
     name: "Rendering Patterns",
@@ -26,7 +26,7 @@ const features = [
 function Features() {
   return (
     <>
-      <div className="grid grid-cols-4 gap-3 my-12 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 my-12">
         {features.map(({ icon: Icon, ...feature }, i) => (
           <div
             className="flex items-center space-x-4"
