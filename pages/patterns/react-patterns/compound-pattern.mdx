@@ -119,7 +119,7 @@ Another way to implement the Compound pattern, is to use `React.Children.map` in
 ```js
 export function FlyOut(props) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = React.useState('');
   const toggle = React.useCallback(() => setOpen((state) => !state), []);
 
   return (
@@ -132,29 +132,46 @@ export function FlyOut(props) {
 }
 
 function Input(props) {
-  const { value, toggle } = React.useContext(FlyOutContext);
+  const { value, toggle, setValue, open, ...rest } = props;
 
-  return <input onFocus={toggle} onBlur={toggle} value={value} {...props} />;
+  return (
+    <input
+      onFocus={toggle}
+      onBlur={toggle}
+      value={value}
+      onChange={() => {}}
+      {...rest}
+    />
+  );
 }
 
-function List({ children }) {
-  const { open } = React.useContext(FlyOutContext);
-
-  return open && <ul>{children}</ul>;
+function List(props) {
+  const { open, setValue, children } = props;
+  return (
+    open && (
+      <ul>
+        {React.Children.map(children, (child) =>
+          React.cloneElement(child, { setValue })
+        )}
+      </ul>
+    )
+  );
 }
 
-function ListItem({ children, value }) {
-  const { setValue } = React.useContext(FlyOutContext);
+function Item(props) {
+  const { children, value, setValue } = props;
 
   return <li onMouseDown={() => setValue(value)}>{children}</li>;
 }
 
 FlyOut.Input = Input;
 FlyOut.List = List;
-FlyOut.ListItem = ListItem;
+FlyOut.Item = Item;
 ```
 
 All children components are cloned, and passed the value of `open`, `toggle`, `value` and `setValue`.
+
+> Notice how the value prop in the `Item` components is not passed from the cloneElement but directly from the JSX.
 
 <StackBlitz name="react-ts-bzkabr" openFile="Input/Input.tsx" />
 
