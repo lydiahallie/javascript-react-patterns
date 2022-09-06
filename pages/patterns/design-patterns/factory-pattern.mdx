@@ -62,7 +62,7 @@ However, in many cases it may be more memory efficient to create new instances i
 
 ```js
 class User {
-  constructor(firstName, lastName, email) {
+  constructor({ firstName, lastName, email }) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
@@ -72,19 +72,26 @@ class User {
     const posts = await fetch(`https://my.cms.com/posts/user/${this.id}`);
     return posts;
   }
+
+  fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
 }
 
 const user1 = new User({
-  firstName: "John",
-  lastName: "Doe",
-  email: "john@doe.com",
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@doe.com',
 });
 
 const user2 = new User({
-  firstName: "Jane",
-  lastName: "Doe",
-  email: "jane@doe.com",
+  firstName: 'Jane',
+  lastName: 'Doe',
+  email: 'jane@doe.com',
 });
+
+console.log(user1.fullName()); // John Doe
+console.log(user2.fullName()); // Jane Doe
 ```
 
 The `fullName` method is the same for all the objects that were created. By creating new instances, the `fullName` method is available on the prototype instead of on the objec, which saves memory.
