@@ -41,7 +41,7 @@ Before the Context API was available, we often ended up we often end up with som
 
 However, passing props down this way can get quite insecure and complex, and it's simply not a very scalable approach. We cannot easily rename a `prop`, or restructure the component tree. It can also easily lead to a decreased performance, since all child components need to re-render on a state update, even if they aren't consuming that data.
 
-The provider pattern solves this by exposing the values of the `Context` to all children within a `Provder`. A component can optionally consume this data, making it possible to pass data to multiple components without prop drilling.
+The provider pattern solves this by exposing the values of the `Context` to all children within a `Provider`. A component can optionally consume this data, making it possible to pass data to multiple components without prop drilling.
 
 <video
   src="https://res.cloudinary.com/dq8xfyhu4/video/upload/v1653774702/FM%20Workshop/react-state-patterns/provider-pattern/Screen_Recording_2022-05-28_at_4.50.34_PM_n4abmn.mov"
