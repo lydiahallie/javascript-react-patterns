@@ -65,7 +65,7 @@ We can import the `withStyles` HOC, and wrap any component that needs styling.
 ```js
 import { withStyles } from "./hoc/withStyles";
 
-const Text = () => <p style={{ fontFamily: "Inter" }}>Hello world!</p>;
+const Text = (props) => <p style={{ fontFamily: "Inter", ...props.style }}>Hello world!</p>;
 const StyledText = withStyles(Text);
 ```
 
