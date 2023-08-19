@@ -51,9 +51,9 @@ let instance;
 class Counter {
   constructor() {
     if (instance) {
-      throw new Error("You can only create one instance!");
+      return instance;
     }
-    this.counter = counter;
+    this.counter = 0;
     instance = this;
   }
 
@@ -72,7 +72,7 @@ class Counter {
 
 // 2. Setting a variable equal to the the frozen newly instantiated object, by using the built-in `Object.freeze` method.
 // This ensures that the newly created instance is not modifiable.
-const singletonCounter = Object.freeze(new Counter());
+const singletonCounter = new Counter();
 
 // 3. Exporting the variable as the `default` value within the file to make it globally accessible.
 export default singletonCounter;
