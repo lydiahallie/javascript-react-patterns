@@ -9,7 +9,7 @@ Use functions to reuse stateful logic among multiple components throughout the a
 
 ### Overview
 
-React Hooks are functions special types of functions that you can use in order to:
+React Hooks are special types of functions that you can use in order to:
 
 - Add state to a functional component
 - Reuse stateful logic among multiple components throughout the app.
@@ -49,7 +49,7 @@ We _could_ just add this logic to the `Listing` component itself. However, in or
   controls
 />
 
-Now that it's a hook, we can reuse the same logic throughout multiple components in our application. For example, if we also wnated to add the hover logic to the `Image` and `Button` component, we can simply use the hook within these functional components.
+Now that it's a hook, we can reuse the same logic throughout multiple components in our application. For example, if we also wanted to add the hover logic to the `Image` and `Button` component, we can simply use the hook within these functional components.
 
 <img src="https://res.cloudinary.com/dq8xfyhu4/image/upload/v1653758972/FM%20Workshop/react-state-patterns/hooks-pattern/frontendmasters25.001_tkva9y.png" />
 
@@ -59,7 +59,7 @@ Now that it's a hook, we can reuse the same logic throughout multiple components
 
 React knows a hook is a hook when the name starts with `use`. Since this hook keeps track of the hovering state, it makes sense to name it `useHover`.
 
-Within this hook, we have to keep track of the hovering state by using three build-in hooks:
+Within this hook, we have to keep track of the hovering state by using three built-in hooks:
 
 1. `useState`, which keeps track of whether the component is currently being hovered.
 2. `useRef`, which creates a ref to the component that we're tracking.
