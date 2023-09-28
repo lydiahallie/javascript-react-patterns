@@ -49,7 +49,7 @@ let instance;
 // 1. Creating the `Counter` class, which contains a `constructor`, `getInstance`, `getCount`, `increment` and `decrement` method.
 // Within the constructor, we check to make sure the class hasn't already been instantiated.
 class Counter {
-  constructor() {
+  constructor(counter = 0) {
     if (instance) {
       throw new Error("You can only create one instance!");
     }
