@@ -132,19 +132,17 @@ export function FlyOut(props) {
 }
 
 function Input(props) {
-  const { value, toggle } = React.useContext(FlyOutContext);
+  const { value, toggle } = props;
 
   return <input onFocus={toggle} onBlur={toggle} value={value} {...props} />;
 }
 
-function List({ children }) {
-  const { open } = React.useContext(FlyOutContext);
+function List({ children, open }) {
 
   return open && <ul>{children}</ul>;
 }
 
-function ListItem({ children, value }) {
-  const { setValue } = React.useContext(FlyOutContext);
+function ListItem({ children, value, setValue }) {
 
   return <li onMouseDown={() => setValue(value)}>{children}</li>;
 }
